@@ -1,45 +1,81 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-import API from '../api';
-import './Register.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import API from "../api";
+import "./Register.css";
 
 export default function Register() {
-    const [form, setform] = useState(() => ({ username: '', password: '' }));
+    const [form, setForm] = useState({ username: "", email: "", password: "", role: "user" }); 
+    const [error, setError] = useState("");
     const navigate = useNavigate();
-
-    useEffect(() => {
-        setform({ username: '', password: '' });
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            await API.post('/register', form);
-            alert('User Registered!');
-            setform({ username: '', password: '' });
-            navigate('/login');
-        } catch {
-            alert('Registration failed');
+        setError("");
+
+        console.log("Form Data Sent:", form); 
+
+        if (!form.username || !form.email || !form.password) {
+            setError("All fields (username, email, password) are required.");
+            return;
         }
-    }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(form.email)) {
+            setError("Please enter a valid email address.");
+            return;
+        }
+
+        try {
+            await API.post("/register", form);
+            alert("User Registered!");
+            setForm({ username: "", email: "", password: "", role: "user" });
+            navigate("/login");
+        } catch (error) {
+            console.error("Registration error:", error.response?.data || error.message);
+            setError(error.response?.data?.message || "Registration failed. Please try again.");
+        }
+    };
 
     return (
         <div className="register-container">
             <form className="register-form" onSubmit={handleSubmit} autoComplete="off">
-                 <div>
+                {error && <p className="error-message">{error}</p>}
+                <div>
                     <label htmlFor="username">Username:</label>
-                    <input id="username" type="text" placeholder="Username" value={form.username} onChange={e => setform({ ...form, username: e.target.value })}/>
+                    <input
+                        id="username"
+                        type="text"
+                        placeholder="Username"
+                        value={form.username}
+                        onChange={(e) => setForm(prev => ({ ...prev, username: e.target.value }))}
+                    />
+                </div>
+                <div>
+                    <label htmlFor="email">Email:</label>
+                    <input
+                        id="email"
+                        type="email"
+                        placeholder="Email"
+                        value={form.email}
+                        onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))}
+                    />
                 </div>
                 <div>
                     <label htmlFor="password">Password:</label>
-                    <input id="password" type="password" placeholder="Password" value={form.password} onChange={e => setform({ ...form, password: e.target.value })}/>
+                    <input
+                        id="password"
+                        type="password"
+                        placeholder="Password"
+                        value={form.password}
+                        onChange={(e) => setForm(prev => ({ ...prev, password: e.target.value }))}
+                    />
                 </div>
                 <button type="submit">Sign up</button>
             </form>
 
             <div className="login-redirect">
                 <p>Already have an account?</p>
-                <button onClick={() => navigate('/login')}>Login</button>
+                <button onClick={() => navigate("/login")}>Login</button>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const userschema = new mongoose.Schema({
     username:
@@ -6,6 +6,15 @@ const userschema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
+    },
+    email:
+    {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email address']
     },
     password:
     {
@@ -20,4 +29,4 @@ const userschema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('User', userschema);
+export default mongoose.model('User', userschema);

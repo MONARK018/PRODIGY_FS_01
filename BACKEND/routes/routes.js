@@ -1,17 +1,16 @@
-const express = require('express');
+import express from 'express';
+import { register, login, protectedRoute } from '../controllers/controllers.js';
+import authmiddleware from '../middleware/authmiddleware.js';
+import rolemiddleware from '../middleware/rolemiddleware.js';
+
 const router = express.Router();
-const controller = require('../controllers/controllers');
-const authmiddleware = require('../middleware/authmiddleware');
-const rolemiddleware = require('../middleware/rolemiddleware');
 
-router.post('/register',controller.register);
-router.post('/login',controller.login);
-router.get('/protected',authmiddleware, controller.protected);
+router.post('/register', register);
+router.post('/login', login);
+router.get('/protected', authmiddleware, protectedRoute);
 
-router.get('./admin', authmiddleware, rolemiddleware('admin'), (req,res)=>
-{
-    res.json({message: 'welcome Admin'});
-})
+router.get('/admin', authmiddleware, rolemiddleware('admin'), (req, res) => {
+    res.json({ message: 'Welcome Admin' });
+});
 
-module.exports = router;
-
+export default router;
